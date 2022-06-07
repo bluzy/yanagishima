@@ -152,7 +152,7 @@ dependencies {
     errorprone 'com.google.errorprone:error_prone_core:2.3.4'
 
     // KerberosRestTemplate
-    implementation 'org.springframework.security.kerberos:spring-security-kerberos-client:1.0.1.RELEASE'
+    compile 'org.springframework.security.kerberos:spring-security-kerberos-client:1.0.1.RELEASE'
 
     // Tests
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"

@@ -3,14 +3,9 @@ package yanagishima.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.experimental.UtilityClass;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -18,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static yanagishima.util.Constants.YANAGISHIAM_HIVE_JOB_PREFIX;
 

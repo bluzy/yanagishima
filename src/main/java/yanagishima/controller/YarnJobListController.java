@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.client.RestTemplate;
 import yanagishima.annotation.DatasourceAuth;
+import yanagishima.config.RestTemplateFactory;
 import yanagishima.config.YanagishimaConfig;
 import yanagishima.model.db.Query;
 import yanagishima.service.QueryService;
@@ -34,13 +36,15 @@ public class YarnJobListController {
 
   private final QueryService queryService;
   private final YanagishimaConfig config;
+  private final RestTemplateFactory restTemplateFactory;
 
   @DatasourceAuth
   @GetMapping("yarnJobList")
   public void get(@RequestParam String datasource, HttpServletRequest request, HttpServletResponse response)
       throws IOException {
+    RestTemplate restTemplate = restTemplateFactory.getOrCreateRestTemplate(datasource);
     String resourceManagerUrl = config.getResourceManagerUrl(datasource);
-    List<Map> yarnJobs = YarnUtil.getJobList(resourceManagerUrl, config.getResourceManagerBegin(datasource));
+    List<Map> yarnJobs = YarnUtil.getJobList(restTemplate, resourceManagerUrl, config.getResourceManagerBegin(datasource));
     List<Map> runningJobs = yarnJobs.stream().filter(job -> job.get("state").equals("RUNNING")).collect(
         Collectors.toList());
     ;

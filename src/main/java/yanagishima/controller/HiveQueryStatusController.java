@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.client.RestTemplate;
 import yanagishima.annotation.DatasourceAuth;
+import yanagishima.config.RestTemplateFactory;
 import yanagishima.config.YanagishimaConfig;
 import yanagishima.model.db.Query;
 import yanagishima.model.spark.SparkSqlJob;
@@ -38,6 +40,7 @@ import yanagishima.util.YarnUtil;
 public class HiveQueryStatusController {
   private final QueryService queryService;
   private final YanagishimaConfig yanagishimaConfig;
+  private final RestTemplateFactory restTemplateFactory;
 
   @DatasourceAuth
   @PostMapping(path = { "hiveQueryStatus", "sparkQueryStatus" })
@@ -46,6 +49,7 @@ public class HiveQueryStatusController {
                    @RequestParam String queryid,
                    @RequestParam(name = "user") Optional<String> hiveUser,
                    HttpServletRequest request, HttpServletResponse response) {
+    RestTemplate restTemplate = restTemplateFactory.getOrCreateRestTemplate(datasource);
     String resourceManagerUrl = yanagishimaConfig.getResourceManagerUrl(datasource);
     String userName = null;
     if (yanagishimaConfig.isUseAuditHttpHeaderName()) {
@@ -58,7 +62,7 @@ public class HiveQueryStatusController {
 
     Optional<Query> queryOptional = queryService.getByEngine(queryid, datasource, engine);
     if (engine.equals("hive")) {
-      Optional<Map> applicationOptional = YarnUtil.getApplication(resourceManagerUrl, queryid, userName,
+      Optional<Map> applicationOptional = YarnUtil.getApplication(restTemplate, resourceManagerUrl, queryid, userName,
                                                                   yanagishimaConfig
                                                                       .getResourceManagerBegin(datasource));
       if (applicationOptional.isPresent()) {

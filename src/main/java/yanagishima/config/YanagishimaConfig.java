@@ -215,6 +215,14 @@ public class YanagishimaConfig {
     return Optional.ofNullable(environment.getProperty("resource.manager.url." + datasource + ".begin"));
   }
 
+  public Optional<String> getKerberosKeytab(String datasource) {
+    return Optional.ofNullable(environment.getProperty("kerberos.keytab." + datasource));
+  }
+
+  public Optional<String> getKerberosPrincipal(String datasource) {
+    return Optional.ofNullable(environment.getProperty("kerberos.principal." + datasource));
+  }
+
   public List<String> getHiveDisallowedKeywords(String datasource) {
     String property = environment.getProperty("hive.disallowed.keywords." + datasource);
     if (property == null) {

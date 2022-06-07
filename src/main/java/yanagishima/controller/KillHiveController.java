@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 import yanagishima.annotation.DatasourceAuth;
+import yanagishima.config.RestTemplateFactory;
 import yanagishima.config.YanagishimaConfig;
 import yanagishima.pool.StatementPool;
 import yanagishima.util.YarnUtil;
@@ -25,6 +27,7 @@ import yanagishima.util.YarnUtil;
 public class KillHiveController {
   private final StatementPool statements;
   private final YanagishimaConfig config;
+  private final RestTemplateFactory restTemplateFactory;
 
   @DatasourceAuth
   @PostMapping("killHive")
@@ -34,10 +37,10 @@ public class KillHiveController {
     if (id == null) {
       return;
     }
-
+    RestTemplate restTemplate = restTemplateFactory.getOrCreateRestTemplate(datasource);
     String resourceManagerUrl = config.getResourceManagerUrl(datasource);
     if (id.startsWith("application_")) {
-      killApplication(response, resourceManagerUrl, id);
+      killApplication(response, restTemplate, resourceManagerUrl, id);
       return;
     }
     if (config.isUseJdbcCancel(datasource)) {
@@ -54,10 +57,10 @@ public class KillHiveController {
       }
       return;
     }
-    YarnUtil.getApplication(resourceManagerUrl, id, getUsername(request),
+    YarnUtil.getApplication(restTemplate, resourceManagerUrl, id, getUsername(request),
                             config.getResourceManagerBegin(datasource)).ifPresent(application -> {
       String applicationId = (String) application.get("id");
-      killApplication(response, resourceManagerUrl, applicationId);
+      killApplication(response, restTemplate, resourceManagerUrl, applicationId);
     });
   }
 
@@ -68,9 +71,9 @@ public class KillHiveController {
     return request.getParameter("user");
   }
 
-  private static void killApplication(HttpServletResponse response, String resourceManagerUrl, String id) {
+  private static void killApplication(HttpServletResponse response, RestTemplate restTemplate, String resourceManagerUrl, String id) {
     try {
-      String json = YarnUtil.kill(resourceManagerUrl, id);
+      String json = YarnUtil.kill(restTemplate, resourceManagerUrl, id);
       response.setContentType("application/json");
       PrintWriter writer = response.getWriter();
       writer.println(json);

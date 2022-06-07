@@ -1,26 +1,27 @@
 package yanagishima.controller;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.client.RestTemplate;
 import yanagishima.annotation.DatasourceAuth;
+import yanagishima.config.RestTemplateFactory;
 import yanagishima.config.YanagishimaConfig;
 import yanagishima.util.SparkUtil;
 import yanagishima.util.YarnUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 public class HiveQueryDetailController {
   private final YanagishimaConfig yanagishimaConfig;
+  private final RestTemplateFactory restTemplateFactory;
 
   @DatasourceAuth
   @GetMapping(path = { "hiveQueryDetail", "sparkQueryDetail" })
@@ -29,6 +30,7 @@ public class HiveQueryDetailController {
                   @RequestParam(name = "id") Optional<String> idOptional,
                   @RequestParam(name = "user") Optional<String> hiveUser,
                   HttpServletRequest request, HttpServletResponse response) throws IOException {
+    RestTemplate restTemplate = restTemplateFactory.getOrCreateRestTemplate(datasource);
     String resourceManagerUrl = yanagishimaConfig.getResourceManagerUrl(datasource);
     if (engine.equals("hive")) {
       idOptional.ifPresent(id -> {
@@ -47,7 +49,7 @@ public class HiveQueryDetailController {
               userName = hiveUser.get();
             }
           }
-          Optional<Map> applicationOptional = YarnUtil.getApplication(resourceManagerUrl, id, userName,
+          Optional<Map> applicationOptional = YarnUtil.getApplication(restTemplate, resourceManagerUrl, id, userName,
                                                                       yanagishimaConfig
                                                                           .getResourceManagerBegin(datasource));
           applicationOptional.ifPresent(application -> {

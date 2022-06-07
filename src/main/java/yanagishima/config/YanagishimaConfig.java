@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
@@ -216,11 +217,13 @@ public class YanagishimaConfig {
   }
 
   public Optional<String> getKerberosKeytab(String datasource) {
-    return Optional.ofNullable(environment.getProperty("kerberos.keytab." + datasource));
+    return Optional.ofNullable(environment.getProperty("kerberos.keytab." + datasource))
+            .filter(StringUtils::isNotBlank);
   }
 
   public Optional<String> getKerberosPrincipal(String datasource) {
-    return Optional.ofNullable(environment.getProperty("kerberos.principal." + datasource));
+    return Optional.ofNullable(environment.getProperty("kerberos.principal." + datasource))
+            .filter(StringUtils::isNotBlank);;
   }
 
   public List<String> getHiveDisallowedKeywords(String datasource) {

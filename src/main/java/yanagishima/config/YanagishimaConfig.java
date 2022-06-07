@@ -223,7 +223,7 @@ public class YanagishimaConfig {
 
   public Optional<String> getKerberosPrincipal(String datasource) {
     return Optional.ofNullable(environment.getProperty("kerberos.principal." + datasource))
-            .filter(StringUtils::isNotBlank);;
+            .filter(StringUtils::isNotBlank);
   }
 
   public List<String> getHiveDisallowedKeywords(String datasource) {
